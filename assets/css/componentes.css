@@ -1,0 +1,8 @@
+/* Ajustes de iconografía y avisos compartidos por distintas vistas. */
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400;
+}
+
+[role="status"] {
+    border-radius: 0.75rem;
+}

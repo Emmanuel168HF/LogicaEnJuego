@@ -1,0 +1,12 @@
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(config|controllers|models|includes|database|scripts|logica_juvenil_tech|admin/actions)(/|$) - [F,L,NC]
+    RewriteRule ^auth/logout\.php$ - [F,L,NC]
+    RewriteRule ^pages(/|$) - [F,L,NC]
+</IfModule>
+
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,260 @@
+:root {
+    color-scheme: light;
+    --app-background: 248 249 255;
+    --app-surface: 248 249 255;
+    --app-surface-container-lowest: 255 255 255;
+    --app-surface-container-low: 239 244 255;
+    --app-surface-container: 229 238 255;
+    --app-surface-container-high: 220 233 255;
+    --app-surface-container-highest: 211 228 254;
+    --app-primary: 0 15 63;
+    --app-secondary: 0 81 213;
+    --app-tertiary: 28 0 71;
+    --app-primary-container: 23 37 84;
+    --app-on-primary: 255 255 255;
+    --app-on-surface: 11 28 48;
+    --app-on-surface-variant: 69 70 79;
+    --app-on-secondary: 255 255 255;
+    --app-outline: 118 118 128;
+    --app-outline-variant: 198 197 208;
+    --app-surface-tint: 79 92 142;
+    --app-primary-fixed: 220 225 255;
+    --app-primary-fixed-dim: 183 196 253;
+    --app-tertiary-fixed-dim: 210 187 255;
+    --app-error: 186 26 26;
+    --app-error-container: 255 218 214;
+    --app-on-error-container: 147 0 10;
+    --app-field: 255 255 255;
+    --app-field-text: 11 28 48;
+    --app-shadow: 0 15 63;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --app-background: 15 20 34;
+    --app-surface: 19 25 41;
+    --app-surface-container-lowest: 27 34 52;
+    --app-surface-container-low: 33 42 63;
+    --app-surface-container: 42 52 75;
+    --app-surface-container-high: 53 64 88;
+    --app-surface-container-highest: 66 78 103;
+    --app-primary: 225 231 255;
+    --app-secondary: 145 185 255;
+    --app-tertiary: 223 201 255;
+    --app-primary-container: 49 62 100;
+    --app-on-primary: 18 29 59;
+    --app-on-surface: 234 238 250;
+    --app-on-surface-variant: 193 201 220;
+    --app-on-secondary: 15 31 64;
+    --app-outline: 156 168 192;
+    --app-outline-variant: 74 85 109;
+    --app-surface-tint: 177 195 248;
+    --app-primary-fixed: 47 60 97;
+    --app-primary-fixed-dim: 61 74 112;
+    --app-tertiary-fixed-dim: 69 57 99;
+    --app-error: 255 180 171;
+    --app-error-container: 90 18 24;
+    --app-on-error-container: 255 218 214;
+    --app-field: 29 37 56;
+    --app-field-text: 234 238 250;
+    --app-shadow: 0 0 0;
+}
+
+html {
+    min-height: 100%;
+    background: rgb(var(--app-background));
+}
+
+body {
+    min-height: 100vh;
+    background-color: rgb(var(--app-background));
+    color: rgb(var(--app-on-surface));
+    transition: background-color 180ms ease, color 180ms ease;
+}
+
+body,
+header,
+main,
+footer,
+aside,
+article,
+section,
+nav,
+form,
+fieldset,
+table,
+tr,
+td,
+th {
+    border-color: rgb(var(--app-outline-variant));
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+    background-color: rgb(var(--app-field));
+    color: rgb(var(--app-field-text));
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgb(var(--app-on-surface-variant));
+    opacity: 0.8;
+}
+
+button[data-theme-toggle] {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px solid rgb(var(--app-outline-variant));
+    border-radius: 9999px;
+    background-color: rgb(var(--app-surface-container-low));
+    color: rgb(var(--app-on-surface));
+    padding: 0.45rem 0.85rem;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.15;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+button[data-theme-toggle]:hover {
+    background-color: rgb(var(--app-surface-container-high));
+}
+
+button[data-theme-toggle] .theme-toggle-icon {
+    font-size: 1.15rem;
+}
+
+.auth-page {
+    background-color: rgb(var(--app-background));
+}
+
+.auth-page .auth-card {
+    background-color: rgb(var(--app-surface-container-lowest));
+    color: rgb(var(--app-on-surface));
+}
+
+.auth-page .auth-brand,
+.auth-page .auth-title {
+    color: rgb(var(--app-primary));
+}
+
+.auth-page .auth-card .text-slate-600 {
+    color: rgb(var(--app-on-surface-variant));
+}
+
+.error-page {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 1.5rem;
+}
+
+.error-card {
+    width: min(100%, 34rem);
+    border: 1px solid rgb(var(--app-outline-variant));
+    border-radius: 1.5rem;
+    background-color: rgb(var(--app-surface-container-lowest));
+    padding: 2rem;
+    box-shadow: 0 12px 32px rgb(var(--app-shadow) / 0.12);
+}
+
+.error-card h1 {
+    margin: 0;
+    color: rgb(var(--app-primary));
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.error-card p {
+    color: rgb(var(--app-on-surface-variant));
+}
+
+.error-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.error-link {
+    display: inline-flex;
+    margin-top: 0.75rem;
+    border-radius: 9999px;
+    background-color: rgb(var(--app-secondary));
+    color: white;
+    padding: 0.7rem 1rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+:root[data-theme="dark"] .bg-amber-50,
+:root[data-theme="dark"] .bg-sky-50,
+:root[data-theme="dark"] .bg-violet-50,
+:root[data-theme="dark"] .bg-emerald-50,
+:root[data-theme="dark"] .bg-slate-50,
+:root[data-theme="dark"] .bg-white {
+    background-color: rgb(var(--app-surface-container-low));
+}
+
+:root[data-theme="dark"] .bg-amber-950,
+:root[data-theme="dark"] .text-slate-900,
+:root[data-theme="dark"] .text-slate-800,
+:root[data-theme="dark"] .text-slate-700,
+:root[data-theme="dark"] .text-amber-950 {
+    color: rgb(var(--app-on-surface));
+}
+
+:root[data-theme="dark"] .text-slate-600,
+:root[data-theme="dark"] .text-slate-500,
+:root[data-theme="dark"] .text-slate-400 {
+    color: rgb(var(--app-on-surface-variant));
+}
+
+:root[data-theme="dark"] .border-slate-300,
+:root[data-theme="dark"] .border-slate-200,
+:root[data-theme="dark"] .border-slate-100,
+:root[data-theme="dark"] .border-amber-300 {
+    border-color: rgb(var(--app-outline-variant));
+}
+
+:root[data-theme="dark"] .text-blue-700,
+:root[data-theme="dark"] .text-blue-800,
+:root[data-theme="dark"] .text-blue-900 {
+    color: rgb(var(--app-secondary));
+}
+
+:root[data-theme="dark"] .bg-blue-100,
+:root[data-theme="dark"] .bg-red-100 {
+    background-color: rgb(var(--app-surface-container-high));
+}
+
+:root[data-theme="dark"] .text-red-700,
+:root[data-theme="dark"] .text-red-800 {
+    color: rgb(var(--app-error));
+}
+
+:root[data-theme="dark"] .profile-page .bg-amber-50 {
+    background-color: rgb(83 64 39);
+}
+
+:root[data-theme="dark"] .profile-page .bg-sky-50 {
+    background-color: rgb(34 65 93);
+}
+
+:root[data-theme="dark"] .profile-page .bg-violet-50 {
+    background-color: rgb(62 49 91);
+}
+
+:root[data-theme="dark"] .profile-page .bg-emerald-50 {
+    background-color: rgb(34 76 65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body {
+        transition: none;
+    }
+}

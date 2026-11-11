@@ -1,0 +1,106 @@
+/* Configuración base de tipografía y paleta para todo el documento. */
+:root {
+    color-scheme: light;
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+/* Normaliza el margen del lienzo y hereda la tipografía en los controles de formulario. */
+body {
+    margin: 0;
+    background-image:
+        radial-gradient(ellipse at 8% 8%, rgba(255, 213, 79, 0.08), transparent 28rem),
+        radial-gradient(ellipse at 92% 18%, rgba(124, 58, 237, 0.06), transparent 30rem);
+    background-attachment: fixed;
+}
+
+/* Mejora la interacción táctil y hace claramente visibles los focos de teclado. */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #7c3aed;
+    outline-offset: 2px;
+}
+
+/* La tarjeta de perfil conserva la estructura del sitio y refuerza el tono lúdico. */
+.profile-page article,
+.profile-page section {
+    border: 1px solid rgba(198, 197, 208, 0.42);
+}
+
+.profile-page input,
+.profile-page select {
+    min-height: 2.75rem;
+}
+
+.avatar-choice {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border-radius: 1rem;
+    background: transparent;
+    transition: transform 160ms ease;
+}
+
+.avatar-choice span {
+    display: grid;
+    width: 2.9rem;
+    height: 2.9rem;
+    place-items: center;
+    border: 2px solid transparent;
+    border-radius: 0.875rem;
+    background: #eff4ff;
+    font-size: 1.8rem;
+    line-height: 1;
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.avatar-choice input:checked + span {
+    border-color: #0051d5;
+    background: #dce9ff;
+    box-shadow: 0 0 0 3px rgba(0, 81, 213, 0.14);
+}
+
+.avatar-choice.is-selected span {
+    border-color: #0051d5;
+    background: #dce9ff;
+    box-shadow: 0 0 0 3px rgba(0, 81, 213, 0.14);
+}
+
+.avatar-choice input:focus-visible + span {
+    outline: 3px solid #7c3aed;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .profile-page article {
+        transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .profile-page article:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 15, 63, 0.08);
+    }
+
+    .avatar-choice:hover {
+        transform: translateY(-2px);
+    }
+
+    .avatar-choice:hover span {
+        background: #dce9ff;
+    }
+}

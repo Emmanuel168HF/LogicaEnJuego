@@ -1,0 +1,12 @@
+/* Ajustes de presentación para pantallas pequeñas. */
+@media (max-width: 640px) {
+    /* Permite que la navegación ocupe el ancho disponible en móviles. */
+    header nav {
+        width: 100%;
+    }
+
+    /* Conserva el ancho legible de las tablas y permite desplazarlas horizontalmente. */
+    table {
+        min-width: 34rem;
+    }
+}

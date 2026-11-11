@@ -1,0 +1,14 @@
+/* Transiciones sutiles en enlaces y botones solo cuando el usuario no solicita reducir el movimiento. */
+@media (prefers-reduced-motion: no-preference) {
+    /* Suaviza los cambios de color y elevación de los controles interactivos. */
+    a,
+    button {
+        transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    /* Eleva ligeramente el control al pasar el puntero para dar retroalimentación visual. */
+    a:hover,
+    button:hover {
+        transform: translateY(-1px);
+    }
+}
