@@ -20,7 +20,7 @@ class ServiceIA {
                 'tema_css' => 'tema-infantil',
                 'nombre' => 'LIPAL Jr.',
                 'subtitulo' => '¡Tu amigo de aventuras!',
-                'avatar' => 'assets/images/logo.png',
+                'avatar' => 'assets/images/lipal_jr.png',
                 'activar_voz' => true,
                 'system_prompt' => 'Eres LIPAL, una mascota amigable para niños de 6 a 9 años. Usa vocabulario muy simple, frases cortas, cuentos o analogías cotidianas y refuerzo positivo constante.'
             ];
@@ -32,7 +32,7 @@ class ServiceIA {
                 'tema_css' => 'tema-gamer',
                 'nombre' => 'LIPAL Quest',
                 'subtitulo' => 'Guía de misiones y retos',
-                'avatar' => 'assets/images/logo.png',
+                'avatar' => 'assets/images/lipal_quest.png',
                 'activar_voz' => false,
                 'system_prompt' => 'Eres LIPAL, un compañero estilo videojuego para estudiantes de 10 a 13 años. Usa un tono cercano y curioso, explicaciones paso a paso con ejemplos visuales y formato tipo trivia, sin dar la respuesta directa.'
             ];
@@ -43,7 +43,7 @@ class ServiceIA {
             'tema_css' => 'tema-academico',
             'nombre' => 'LIPAL Tutor',
             'subtitulo' => 'Tu tutor de aprendizaje',
-            'avatar' => 'assets/images/logo.png',
+            'avatar' => 'assets/images/lipal_tutor.png',
             'activar_voz' => false,
             'system_prompt' => 'Eres LIPAL, un tutor académico moderno para jóvenes de 14 a 18 años. Usa lenguaje formal pero accesible, enfoque socrático (guía con preguntas), pensamiento crítico y soporte para fórmulas y código.'
         ];
