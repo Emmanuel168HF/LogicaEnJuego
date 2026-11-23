@@ -144,7 +144,7 @@ async function enviarMensajeLipal() {
     const contexto = document.querySelector('h1')?.innerText || document.title;
 
     try {
-        const res = await fetch('controllers/iaController.php', {
+        const res = await fetch('index.php?page=ia', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mensaje, contexto })
