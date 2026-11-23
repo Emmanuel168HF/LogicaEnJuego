@@ -23,6 +23,7 @@ $rutas = [
     'login' => __DIR__ . '/pages/login.php',
     'registro' => __DIR__ . '/pages/registro.php',
     'admin' => __DIR__ . '/admin/index.php',
+    'ia' => __DIR__ . '/controllers/iaController.php',
 ];
 
 // Rechaza nombres de página no permitidos antes de incluir cualquier vista.
@@ -34,6 +35,10 @@ if (!is_string($pagina) || !isset($rutas[$pagina])) {
 }
 
 // Todas las mutaciones pasan por CSRF y por el despachador central de acciones.
+if ($pagina === 'ia' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    require __DIR__ . '/controllers/iaController.php';
+    exit;
+}
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     try {
         validarCsrf();

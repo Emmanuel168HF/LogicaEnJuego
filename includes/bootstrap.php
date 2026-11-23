@@ -4,6 +4,7 @@ declare(strict_types=1);
 // Carga utilidades, conexión y componentes de la aplicación antes de procesar cada solicitud.
 require_once __DIR__ . '/funciones.php';
 require_once dirname(__DIR__) . '/config/conexion.php';
+require_once __DIR__ . '/serviceIA.php';
 
 // Registra modelos y controladores en el orden requerido por sus dependencias.
 foreach ([
