@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 $usuarioLipal = function_exists('usuarioActual') ? usuarioActual() : null;
-if ($usuarioLipal):
+$esEjercicio = ($paginaActual ?? ($_GET['page'] ?? '')) === 'ejercicio';
+
+if ($usuarioLipal && !$esEjercicio):
     $tieneEdad = isset($usuarioLipal['age']) && $usuarioLipal['age'] !== null;
     $edadLipal = $tieneEdad ? (int) $usuarioLipal['age'] : 15;
     $perfilLipal = ServiceIA::obtenerPerfilPorEdad($edadLipal);
@@ -13,20 +15,23 @@ if ($usuarioLipal):
         default         => 'bg-gradient-to-r from-[#0051d5] to-[#000f3f] text-white',
     };
 
-    $clasesBotonFlotante = match ($perfilLipal['tema_css']) {
-        'tema-infantil' => 'bg-orange-500 hover:bg-orange-600 text-lg px-5 py-3.5',
-        'tema-gamer'    => 'bg-violet-600 hover:bg-violet-700 text-sm px-4 py-3 ring-2 ring-violet-300',
-        default         => 'bg-[#4f46e5] hover:bg-[#4338ca] text-sm px-4 py-3',
+    $clasesBordeBurbuja = match ($perfilLipal['tema_css']) {
+        'tema-infantil' => 'ring-4 ring-orange-400',
+        'tema-gamer'    => 'ring-4 ring-violet-500',
+        default         => 'ring-4 ring-[#0051d5]',
     };
 
     $clasesTextoChat = $perfilLipal['tema_css'] === 'tema-infantil' ? 'text-base leading-relaxed' : 'text-sm';
 ?>
 
-<!-- Botón flotante de LIPAL -->
+<!-- Botón flotante de LIPAL (mascota libre sin círculo, más grande) -->
 <button id="btn-lipal" type="button" onclick="toggleLipal()"
-    class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 rounded-full font-extrabold text-white shadow-xl transition-transform duration-200 hover:scale-105 <?= $clasesBotonFlotante ?>">
-    <img src="<?= escapar($perfilLipal['avatar']) ?>" alt="<?= escapar($perfilLipal['nombre']) ?>" class="h-8 w-8 rounded-full bg-white p-1 object-contain">
-    <span><?= escapar($perfilLipal['nombre']) ?></span>
+    aria-label="Abrir chat con <?= escapar($perfilLipal['nombre']) ?>"
+    title="Habla con <?= escapar($perfilLipal['nombre']) ?>"
+    class="fixed bottom-4 right-4 z-40 flex h-36 w-36 items-center justify-center bg-transparent p-0 transition-transform duration-200 hover:scale-110 focus:outline-none">
+    <img src="<?= escapar($perfilLipal['avatar']) ?>"
+         alt="<?= escapar($perfilLipal['nombre']) ?>"
+         class="h-full w-full object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)]">
 </button>
 
 <!-- Ventana flotante del chat -->
@@ -63,9 +68,9 @@ if ($usuarioLipal):
 
         <!-- Sugerencias rápidas -->
         <div class="flex flex-wrap gap-2">
-            <button type="button" onclick="enviarRapidaLipal('¿Cómo resolver este reto?')"
+            <button type="button" onclick="enviarRapidaLipal('Dame un consejo de estudio para esta sección')"
                 class="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100">
-                ¿Cómo resolver este reto?
+                💡 Dame un consejo
             </button>
             <button type="button" onclick="enviarRapidaLipal('Explícame este tema paso a paso')"
                 class="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100">
@@ -80,6 +85,7 @@ if ($usuarioLipal):
 
     <!-- Pie de envío -->
     <div class="flex items-center gap-2 border-t border-slate-200 bg-white p-3">
+        <?= campoCsrf() ?>
         <input id="input-lipal" type="text" maxlength="500" placeholder="Escribe tu duda, tema o módulo..."
             onkeypress="if(event.key==='Enter') enviarMensajeLipal()"
             class="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-800 outline-none focus:border-[#0051d5]">
@@ -117,6 +123,25 @@ function leerVozLipal(texto) {
     }
 }
 
+// Memoria breve de la conversación en la pestaña actual
+let historialLipal = JSON.parse(sessionStorage.getItem('historial_lipal') || '[]');
+
+function guardarHistorialLipal(rol, texto) {
+    historialLipal.push({ rol, texto });
+    if (historialLipal.length > 8) historialLipal = historialLipal.slice(-8);
+    sessionStorage.setItem('historial_lipal', JSON.stringify(historialLipal));
+}
+
+function limpiarChatLipal() {
+    historialLipal = [];
+    sessionStorage.removeItem('historial_lipal');
+    const caja = document.getElementById('lipal-mensajes');
+    caja.innerHTML = `
+        <div class="self-start rounded-2xl rounded-tl-none border border-slate-100 bg-white p-3 text-slate-800 shadow-sm">
+            Conversación reiniciada. 🔄 ¿Sobre qué parte de esta lección quieres platicar?
+        </div>`;
+}
+
 async function enviarMensajeLipal() {
     const input = document.getElementById('input-lipal');
     const btnEnviar = document.getElementById('btn-enviar-lipal');
@@ -124,30 +149,46 @@ async function enviarMensajeLipal() {
     const mensaje = input.value.trim();
     if (!mensaje) return;
 
-    // Burbuja del usuario (usando textContent para evitar XSS)
     const burbujaUser = document.createElement('div');
     burbujaUser.className = 'self-end rounded-2xl rounded-tr-none bg-[#0051d5] p-3 text-white shadow-sm max-w-[85%]';
     burbujaUser.textContent = mensaje;
     caja.appendChild(burbujaUser);
+    guardarHistorialLipal('estudiante', mensaje);
 
     input.value = '';
     input.disabled = true;
     btnEnviar.disabled = true;
 
-    // Indicador de "Pensando..."
     const burbujaCargando = document.createElement('div');
     burbujaCargando.className = 'self-start rounded-2xl rounded-tl-none border border-slate-100 bg-white p-3 text-slate-400 italic shadow-sm';
     burbujaCargando.textContent = 'Pensando...';
     caja.appendChild(burbujaCargando);
     caja.scrollTop = caja.scrollHeight;
 
-    const contexto = document.querySelector('h1')?.innerText || document.title;
+    // Extrae el título y los primeros párrafos visibles de la lección/pantalla
+    const tituloPantalla = document.querySelector('h1')?.innerText || document.title;
+    const parrafos = Array.from(document.querySelectorAll('main p'))
+        .map(p => p.innerText.trim())
+        .filter(t => t.length > 25)
+        .slice(0, 4)
+        .join('\n');
+
+    const csrfInput = document.querySelector('#ventana-lipal input[name="csrf_token"]');
+
+    const datos = new FormData();
+    datos.append('mensaje', mensaje);
+    datos.append('contexto', tituloPantalla);
+    datos.append('contenido', parrafos);
+    datos.append('historial', JSON.stringify(historialLipal));
+    datos.append('modo', mensaje.toLowerCase().includes('consejo') ? 'consejo' : 'chat');
+    if (csrfInput) {
+        datos.append('csrf_token', csrfInput.value);
+    }
 
     try {
         const res = await fetch('index.php?page=ia', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mensaje, contexto })
+            body: datos
         });
         const data = await res.json();
         burbujaCargando.remove();
@@ -157,6 +198,22 @@ async function enviarMensajeLipal() {
         const respuestaFinal = data.respuesta || data.error || 'No pude responder en este momento.';
         burbujaIA.textContent = respuestaFinal;
         caja.appendChild(burbujaIA);
+        guardarHistorialLipal('lipal', respuestaFinal);
+
+        // Si la IA sugiere preguntas de seguimiento, las muestra como botones clicables
+        if (Array.isArray(data.sugerencias) && data.sugerencias.length > 0) {
+            const filaSug = document.createElement('div');
+            filaSug.className = 'flex flex-wrap gap-1.5 mt-1';
+            data.sugerencias.forEach(sug => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100';
+                btn.textContent = sug;
+                btn.onclick = () => enviarRapidaLipal(sug);
+                filaSug.appendChild(btn);
+            });
+            caja.appendChild(filaSug);
+        }
 
         leerVozLipal(respuestaFinal);
     } catch (error) {
