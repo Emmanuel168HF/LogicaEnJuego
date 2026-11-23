@@ -32,6 +32,7 @@ final class UsuarioController
             'role' => 'student',
             'username' => $perfil['username'],
             'avatar' => $perfil['avatar'],
+            'age' => $perfil['age'], // <-- Agrega esta línea
         ];
         $_SESSION['profile_activity_last_ping'] = time();
         mensajeFlash('ok', 'Tu cuenta se creó correctamente.');
@@ -50,6 +51,7 @@ final class UsuarioController
         $modelo->registrarInicioSesion((int) $usuario['id']);
         $usuario['username'] = $perfil['username'];
         $usuario['avatar'] = $perfil['avatar'];
+        $usuario['age'] = $perfil['age']; // <-- Agrega esta línea
         session_regenerate_id(true);
         unset($_SESSION['csrf_token']);
         $_SESSION['usuario'] = $usuario;
@@ -74,6 +76,7 @@ final class UsuarioController
         $perfil = $modelo->perfil((int) $usuario['id']);
         $_SESSION['usuario']['name'] = trim($perfil['first_name'] . ' ' . $perfil['last_name']);
         $_SESSION['usuario']['username'] = $perfil['username'];
+        $_SESSION['usuario']['age'] = $perfil['age'];
         mensajeFlash('ok', '¡Tu perfil quedó actualizado!');
         redirigir(rutaPagina('perfil'));
     }
