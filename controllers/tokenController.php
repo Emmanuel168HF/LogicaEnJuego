@@ -51,29 +51,49 @@ final class TokenController
     }
 
     // Procesa la solicitud AJAX para descontar tokens y devolver la pista.
-    public function usarPista(): void
+   public function usarPista(): void
     {
         header('Content-Type: application/json; charset=utf-8');
         try {
+            $usuario = requerirUsuario();
             $actividadId = (int) ($_POST['activity_id'] ?? 0);
             if ($actividadId <= 0) {
                 throw new InvalidArgumentException('Actividad no válida.');
             }
 
+            $actividad = (new Ejercicio($this->db))->buscar($actividadId);
+            if (!$actividad) {
+                throw new InvalidArgumentException('No se encontró el ejercicio.');
+            }
+
+            // Verifica saldo antes de llamar a la IA
             $costo = 12;
+            if ($this->consultarSaldo() < $costo) {
+                throw new RuntimeException('No tienes suficientes tokens para solicitar una pista.');
+            }
+
+            $perfil = (new Usuario($this->db))->perfil((int) $usuario['id']);
+            $edad = (int) ($perfil['age'] ?? 12);
+
+            $ia = new ServiceIA();
+            $respuestaIA = $ia->interactuar('pista', $edad, '', [
+                'titulo' => $actividad['title'] ?? '',
+                'descripcion' => $actividad['description'] ?? '',
+                'items' => $actividad['items'] ?? [],
+            ]);
+
+            // Descuenta los 12 tokens una vez lista la pista
             $nuevoSaldo = $this->solicitarPista(
                 $costo,
-                'Pista en ejercicio #' . $actividadId,
+                'Pista IA en: ' . ($actividad['title'] ?? 'Ejercicio #' . $actividadId),
                 'hint_activity_' . $actividadId . '_' . time()
             );
-
-            // TODO (Rama IA): Aquí llamarás a (new ServiceIA())->responder(...)
-            $pista = 'Pista desbloqueada: analiza cada elemento e identifica su función principal antes de clasificarlo.';
 
             echo json_encode([
                 'ok' => true,
                 'saldo' => $nuevoSaldo,
-                'pista' => $pista,
+                'pista' => $respuestaIA['texto'],
+                'origen' => $respuestaIA['origen'],
             ], JSON_UNESCAPED_UNICODE);
         } catch (Throwable $e) {
             http_response_code(400);
