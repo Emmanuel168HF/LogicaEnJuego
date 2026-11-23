@@ -54,6 +54,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $ejercicio = new EjercicioController($db);
         $progreso = new ProgresoController($db);
         $admin = new AdminController($db);
+        $token = new TokenController($db);
 
         // Instancia los controladores para dirigir la acción validada al componente responsable.
         switch ($accion) {
@@ -83,6 +84,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             case 'set_activity_publication': $admin->publicarActividad(); break;
             case 'delete_activity': $admin->eliminarActividad(); break;
             case 'delete_exercise_item': $admin->eliminarItemEjercicio(); break;
+            case 'use_hint': $token->usarPista(); break;
             default: throw new InvalidArgumentException('No se reconoce la acción solicitada.');
         }
     } catch (Throwable $error) {

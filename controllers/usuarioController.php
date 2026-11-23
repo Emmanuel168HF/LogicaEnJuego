@@ -56,6 +56,32 @@ final class UsuarioController
         unset($_SESSION['csrf_token']);
         $_SESSION['usuario'] = $usuario;
         $_SESSION['profile_activity_last_ping'] = time();
+
+        // Recompensa diaria de 5 tokens exclusivamente para estudiantes.
+        if (($usuario['role'] ?? '') === 'student') {
+            try {
+                $fecha = date('Y-m-d');
+
+                $referencia = 'login_daily_' . $fecha;
+
+                $token = new Token($this->db);
+
+                $token->ganar(
+                    $usuarioId,
+                    5,
+                    'Recompensa por iniciar sesión',
+                    $referencia
+                );
+
+            } catch (Throwable $error) {
+                // Un error en las recompensas no debe impedir el inicio de sesión.
+                error_log(
+                    'Error al otorgar recompensa diaria de inicio de sesión: '
+                    . $error->getMessage()
+                );
+            }
+        }
+        
         mensajeFlash('ok', 'Sesión iniciada.');
         redirigir($usuario['role'] === 'admin' ? rutaPagina('admin') : rutaPagina('menu'));
     }

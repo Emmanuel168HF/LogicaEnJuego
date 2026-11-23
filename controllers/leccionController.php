@@ -9,16 +9,97 @@ final class LeccionController
     {
     }
 
-    public function completar(): void
-    {
-        // Registra el avance del usuario y comprueba si corresponde otorgar insignias.
+    public function completar(): void {
         $usuario = requerirUsuario();
-        (new Leccion($this->db))->marcarCompletada((int) $usuario['id'], enteroPost('lesson_id'));
+
+        $usuarioId = (int) $usuario['id'];
+        $leccionId = enteroPost('lesson_id');
+
+        // Marca la lección como completada.
+        $leccion = new Leccion($this->db);
+
+        $leccion->marcarCompletada(
+            $usuarioId,
+            $leccionId
+        );
+
+        $token = new Token($this->db);
+
+        // Recompensa por completar la lección.
+        $recompensaLeccion = $token->ganarConResultado(
+            $usuarioId,
+            5,
+            'Recompensa por completar una lección',
+            'lesson_completed_' . $leccionId
+        );
+
+        // Comprueba si todas las lecciones del módulo están completadas.
+        $moduloId = $leccion->obtenerModuloCompletado(
+            $usuarioId,
+            $leccionId
+        );
+
+        $recompensaModulo = [
+            'registrado' => false,
+        ];
+
+        // Recompensa por completar el módulo.
+        if ($moduloId !== null) {
+            $recompensaModulo = $token->ganarConResultado(
+                $usuarioId,
+                15,
+                'Recompensa por completar un módulo',
+                'module_completed_' . $moduloId
+            );
+        }
+
+        // Actualiza las insignias y el progreso.
         $progreso = new Progreso($this->db);
-        $progreso->otorgarInsignia((int) $usuario['id'], 'primer-paso');
-        $progreso->comprobarRutaCompleta((int) $usuario['id']);
-        mensajeFlash('ok', 'Lección marcada como completada.');
-        redirigir(rutaPagina('progreso'));
+
+        $progreso->otorgarInsignia(
+            $usuarioId,
+            'primer-paso'
+        );
+
+        $progreso->comprobarRutaCompleta($usuarioId);
+
+        // Calcula las recompensas realmente registradas.
+        $puntosGanados = 0;
+
+        if ($recompensaLeccion['registrado']) {
+            $puntosGanados += 5;
+        }
+
+        if ($recompensaModulo['registrado']) {
+            $puntosGanados += 15;
+        }
+
+        // Muestra una notificación según las recompensas obtenidas.
+        if ($puntosGanados === 20) {
+            mensajeRecompensaFlash(
+                '¡Lección y módulo completados!',
+                20
+            );
+        } elseif ($puntosGanados === 15) {
+            mensajeRecompensaFlash(
+                '¡Módulo completado!',
+                15
+            );
+        } elseif ($puntosGanados === 5) {
+            mensajeRecompensaFlash(
+                '¡Lección completada!',
+                5
+            );
+        } else {
+            mensajeFlash(
+                'ok',
+                'Lección marcada como completada.'
+            );
+        }
+
+        redirigir(rutaPagina('leccion', [
+            'lesson' => $leccionId
+        ]));
     }
 
     public function guardar(): void

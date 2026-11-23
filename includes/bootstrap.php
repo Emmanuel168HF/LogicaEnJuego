@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/funciones.php';
 require_once dirname(__DIR__) . '/config/conexion.php';
 require_once __DIR__ . '/serviceIA.php';
+require_once __DIR__ . '/../models/Token.php';
 
 // Registra modelos y controladores en el orden requerido por sus dependencias.
 foreach ([
@@ -15,7 +16,8 @@ foreach ([
     'controllers/cuestionarioController.php',
     'controllers/ejercicioController.php',
     'controllers/progresoController.php',
-    'controllers/adminController.php',
+    'controllers/adminController.php',    
+    'controllers/tokenController.php',
 ] as $archivo) {
     $ruta = str_contains($archivo, '/') ? dirname(__DIR__) . '/' . $archivo : dirname(__DIR__) . '/models/' . $archivo . '.php';
     require_once $ruta;

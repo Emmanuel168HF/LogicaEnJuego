@@ -114,9 +114,11 @@ $titulo = $titulos[$paginaActual] ?? 'Lógica en juego';
         }}};
     </script>
     <link rel="stylesheet" href="assets/css/estilos.css?v=20261110-2">
-    <link rel="stylesheet" href="assets/css/componentes.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/tema.css?v=20261110">
+    <link rel="stylesheet" href="assets/css/componentes.css?v=20261122-3">
+    <link rel="stylesheet" href="assets/css/animaciones.css?v=20261122-2">
+    <link rel="stylesheet" href="assets/css/responsive.css">    
+    <script src="assets/js/notificaciones.js" defer></script>
+    <link rel="stylesheet" href="assets/css/tema.css?v=20261122-panel-pistas">
     <script src="assets/js/tema.js?v=20261110"></script>
 </head>
 <body class="min-h-screen bg-background font-body-md text-on-surface antialiased" data-session-heartbeat="<?= $usuarioActual ? urlVista('perfil') : '' ?>">
@@ -343,9 +345,11 @@ $titulo = $titulos[$paginaActual] ?? 'Lógica en juego';
                     '</p></div>';
             }
             if ($paginaActual === 'menu' && $usuarioActual) {
-                echo '<section class="mb-space-lg grid gap-space-md sm:grid-cols-3">';
+                $saldoTokens = (new Token($obtenerDb()))->obtenerSaldo((int) $usuarioActual['id']);
+                echo '<section class="mb-space-lg grid gap-space-md sm:grid-cols-2 lg:grid-cols-4">';
                 tarjeta('Avance', escapar($resumen['completion_percentage']) . '%');
                 tarjeta('Puntos', escapar($resumen['points']));
+                tarjeta('Tokens', escapar($saldoTokens));
                 tarjeta('Insignias', escapar($resumen['badges']));
                 echo '</section>';
             }
@@ -756,6 +760,76 @@ $titulo = $titulos[$paginaActual] ?? 'Lógica en juego';
             echo '<button class="inline-flex items-center gap-space-xs rounded-full bg-secondary px-space-xl py-space-md font-label-md text-on-secondary shadow-md">Comprobar actividad<span class="material-symbols-outlined">check_circle</span></button>';
             }
             echo '</form>';
+            // Consulta el saldo real de tokens y la mascota según la edad del estudiante.
+            $modeloToken = new Token($obtenerDb());
+            $saldoTokens = $modeloToken->obtenerSaldo((int) $usuarioActual['id']);
+
+            $perfilUsuario = (new Usuario($obtenerDb()))->perfil((int) $usuarioActual['id']);
+            $edadEstudiante = (int) ($perfilUsuario['age'] ?? 12);
+            $mascotaIA = ServiceIA::obtenerPerfilPorEdad($edadEstudiante);
+            $avatarMascota = is_file(__DIR__ . '/../' . $mascotaIA['avatar'])
+                ? $mascotaIA['avatar']
+                : 'assets/images/lipal_quest.png';
+
+            // Acceso al panel de pistas con saldo dinámico.
+            echo '<div class="hint-demo-trigger">';
+            echo '<button type="button" class="hint-demo-open" data-hint-open>';
+            echo '<span class="material-symbols-outlined">lightbulb</span>Ver pista</button>';
+            echo '<span class="hint-demo-balance">';
+            echo '<span class="material-symbols-outlined">monetization_on</span>';
+            echo escapar($saldoTokens) . ' tokens</span></div>';
+
+            // Panel de confirmación de uso de pistas.
+            echo '<div class="hint-demo-overlay" data-hint-overlay hidden>';
+            echo '<aside class="hint-demo-panel" role="dialog" aria-modal="true" aria-labelledby="hint-demo-title">';
+
+            echo '<button type="button" class="hint-demo-close" data-hint-close aria-label="Cerrar">×</button>';
+
+            echo '<div class="hint-demo-heading">';
+            echo '<div class="hint-demo-mascot">';
+            echo '<img src="' . escapar($avatarMascota) . '" alt="' . escapar($mascotaIA['nombre']) . '">';
+            echo '</div>';
+            echo '<div>';
+            echo '<h2 id="hint-demo-title">Usar pista · ' . escapar($mascotaIA['nombre']) . '</h2>';
+            echo '<p>Recibe una orientación para ayudarte a resolver el reto sin revelar la respuesta completa.</p>';
+            echo '</div></div>';
+
+            echo '<div class="hint-demo-summary">';
+            echo '<div class="hint-demo-cost">';
+            echo '<span class="hint-demo-coin">★</span>';
+            echo '<div><span>Costo de la pista:</span><strong>−12 tokens</strong></div>';
+            echo '</div>';
+
+            echo '<div class="hint-demo-current">';
+            echo '<span>Tienes:</span>';
+            echo '<strong>🪙 <span data-hint-balance>' . escapar($saldoTokens) . '</span> tokens</strong>';
+            echo '</div></div>';
+
+            echo '<section class="hint-demo-tip">';
+            echo '<h3><span class="material-symbols-outlined">lightbulb</span>Pista</h3>';
+            echo '<p data-hint-text>Presiona "Usar pista (−12 tokens)" para desbloquear una orientación sobre este reto.</p>';
+            echo '</section>';
+
+            echo '<p data-hint-error hidden style="color:#b91c1c;font-size:0.875rem;margin-top:0.5rem;"></p>';
+
+            // El botón permanecerá desactivado hasta conectar la acción segura de gasto.
+            if ($saldoTokens >= 12) {
+                echo '<button type="button" class="hint-demo-use" data-hint-use data-activity-id="' . escapar($actividad['id']) . '">';
+                echo '🪙 Usar pista (−12 tokens)</button>';
+            } else {
+                echo '<button type="button" class="hint-demo-use" disabled>';
+                echo 'No tienes suficientes tokens</button>';
+            }
+
+            echo '<button type="button" class="hint-demo-cancel" data-hint-close>Cancelar</button>';
+
+            echo '<div class="hint-demo-footer">';
+            echo '<span>🌟</span>';
+            echo '<p>Puedes ganar tokens al completar lecciones, módulos y retos. ¡Sigue aprendiendo!</p>';
+            echo '<span class="material-symbols-outlined">trending_up</span>';
+            echo '</div>';
+
+            echo '</aside></div>';
             break;
 
         case 'retroalimentacion':
@@ -1162,5 +1236,6 @@ $titulo = $titulos[$paginaActual] ?? 'Lógica en juego';
 <script src="assets/js/validaciones.js" defer></script>
 <script src="assets/js/cuestionarios.js" defer></script>
 <script src="assets/js/ejercicios.js" defer></script>
+<?php if ($paginaActual === 'ejercicio'): ?><script src="assets/js/pistas-maqueta.js?v=20261123-1" defer></script><?php endif; ?>
 <script src="assets/js/progreso.js" defer></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

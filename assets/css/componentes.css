@@ -6,3 +6,98 @@
 [role="status"] {
     border-radius: 0.75rem;
 }
+
+/* =========================================
+   NOTIFICACIÓN DE RECOMPENSA - ESTILO XBOX
+========================================= */
+
+.notificacion-recompensa {
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+
+    width: min(490px, calc(100vw - 30px));
+    min-height: 105px;
+    padding: 17px 22px;
+
+    color: #ffffff;
+    background: linear-gradient(110deg, #101c18, #17251f 55%, #101b27);
+
+    border: 1px solid rgba(134, 239, 172, 0.28);
+    border-left: 5px solid #22c55e;
+    border-radius: 12px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.45),
+        0 0 22px rgba(34, 197, 94, 0.12);
+
+    transform: translateX(-50%);
+    animation: recompensaEntrada 500ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.notificacion-recompensa::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #22c55e, transparent);
+}
+
+.notificacion-recompensa__contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.notificacion-recompensa__titulo {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.notificacion-recompensa__cantidad {
+    margin: 0;
+    color: #86efac;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.notificacion-recompensa.is-hiding {
+    animation: recompensaSalida 450ms ease-in forwards;
+}
+
+/* Adaptación para móviles. */
+@media (max-width: 480px) {
+    .notificacion-recompensa {
+        bottom: 18px;
+        width: calc(100vw - 24px);
+        min-height: 90px;
+        padding: 15px 17px;
+    }
+
+    .notificacion-recompensa__titulo {
+        font-size: 15px;
+    }
+}
+
+/* Accesibilidad. */
+@media (prefers-reduced-motion: reduce) {
+    .notificacion-recompensa,
+    .notificacion-recompensa.is-hiding {
+        animation: none;
+    }
+
+    .notificacion-recompensa.is-hiding {
+        display: none;
+    }
+}

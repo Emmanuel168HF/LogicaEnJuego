@@ -102,4 +102,81 @@ final class Leccion
         );
         $consulta->execute(['user_id' => $usuarioId, 'lesson_id' => $leccionId]);
     }
+
+    public function moduloCompletadoPorUsuario(
+    int $usuarioId,
+    int $leccionId
+): ?int {
+    // Identifica el módulo y comprueba que todas sus lecciones
+    // publicadas estén completadas por el estudiante.
+    $consulta = $this->db->prepare(
+        'SELECT m.id
+         FROM lessons l
+         INNER JOIN modules m ON m.id = l.module_id
+         WHERE l.id = :lesson_id
+           AND l.is_published = 1
+           AND m.is_published = 1
+           AND m.archived_at IS NULL
+           AND EXISTS (
+               SELECT 1
+               FROM lessons existentes
+               WHERE existentes.module_id = m.id
+                 AND existentes.is_published = 1
+           )
+           AND NOT EXISTS (
+               SELECT 1
+               FROM lessons pendientes
+               LEFT JOIN lesson_progress lp
+                 ON lp.lesson_id = pendientes.id
+                AND lp.user_id = :user_id
+               WHERE pendientes.module_id = m.id
+                 AND pendientes.is_published = 1
+                 AND lp.completed_at IS NULL
+           )
+         LIMIT 1'
+    );
+
+    $consulta->execute([
+        'lesson_id' => $leccionId,
+        'user_id' => $usuarioId,
+    ]);
+
+    $moduloId = $consulta->fetchColumn();
+
+    return $moduloId !== false ? (int) $moduloId : null;
 }
+public function obtenerModuloCompletado(int $usuarioId, int $leccionId): ?int
+{
+    // Comprueba si la lección pertenece a un módulo que ya está completo.
+    $consulta = $this->db->prepare(
+        'SELECT m.id
+         FROM lessons l
+         INNER JOIN modules m ON m.id = l.module_id
+         WHERE l.id = :lesson_id
+           AND l.is_published = 1
+           AND m.is_published = 1
+           AND m.archived_at IS NULL
+           AND NOT EXISTS (
+               SELECT 1
+               FROM lessons l2
+               LEFT JOIN lesson_progress lp
+                   ON lp.lesson_id = l2.id
+                   AND lp.user_id = :user_id
+               WHERE l2.module_id = m.id
+                 AND l2.is_published = 1
+                 AND lp.completed_at IS NULL
+           )
+         LIMIT 1'
+    );
+
+    $consulta->execute([
+        'lesson_id' => $leccionId,
+        'user_id' => $usuarioId,
+    ]);
+
+    $moduloId = $consulta->fetchColumn();
+
+    return $moduloId !== false ? (int) $moduloId : null;
+}
+}
+
