@@ -61,9 +61,12 @@ final class Usuario
 
     public function autenticar(string $correo, string $contrasena): ?array
     {
-        // Verifica cuenta activa y contraseña; renueva hashes obsoletos antes de devolver datos de sesión.
+        // Verifica cuenta activa, contraseña y obtiene la edad del perfil si existe.
         $consulta = $this->db->prepare(
-            'SELECT id, name, email, password_hash, role, is_active FROM users WHERE email = :email LIMIT 1'
+            'SELECT u.id, u.name, u.email, u.password_hash, u.role, u.is_active, p.age
+             FROM users u
+             LEFT JOIN user_profiles p ON p.user_id = u.id
+             WHERE u.email = :email LIMIT 1'
         );
         $consulta->execute(['email' => strtolower(trim($correo))]);
         $usuario = $consulta->fetch();
