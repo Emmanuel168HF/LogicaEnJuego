@@ -1163,5 +1163,6 @@ $titulo = $titulos[$paginaActual] ?? 'Lógica en juego';
 <script src="assets/js/cuestionarios.js" defer></script>
 <script src="assets/js/ejercicios.js" defer></script>
 <script src="assets/js/progreso.js" defer></script>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
