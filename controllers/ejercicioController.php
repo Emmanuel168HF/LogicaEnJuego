@@ -10,21 +10,71 @@ final class EjercicioController
     }
 
     public function enviar(): void
-    {
-        // Autentica al participante, limita el formato del envío y delega su evaluación al modelo.
-        $usuario = requerirUsuario();
-        $actividadId = enteroPost('activity_id');
-        $respuestas = $_POST['answers'] ?? [];
-        if (!is_array($respuestas) || count($respuestas) > 200) {
-            throw new InvalidArgumentException('Las respuestas del ejercicio no son válidas.');
-        }
-        // Guarda el intento, actualiza el progreso y prepara los datos para la pantalla de retroalimentación.
-        $resultado = (new Ejercicio($this->db))->registrarIntento((int) $usuario['id'], $actividadId, $respuestas);
-        (new Progreso($this->db))->otorgarInsignia((int) $usuario['id'], 'primer-reto');
-        iniciarSesionSegura();
-        $_SESSION['ultimo_resultado'] = $resultado + ['kind' => 'exercise', 'activity_id' => $actividadId];
-        redirigir(rutaPagina('retroalimentacion', ['attempt' => $resultado['attempt_id']]));
+{
+    // Autentica al participante.
+    $usuario = requerirUsuario();
+
+    $usuarioId = (int) $usuario['id'];
+    $actividadId = enteroPost('activity_id');
+    $respuestas = $_POST['answers'] ?? [];
+
+    if (!is_array($respuestas) || count($respuestas) > 200) {
+        throw new InvalidArgumentException(
+            'Las respuestas del ejercicio no son válidas.'
+        );
     }
+
+    // Registra y evalúa el intento.
+    $ejercicio = new Ejercicio($this->db);
+
+    $resultado = $ejercicio->registrarIntento(
+        $usuarioId,
+        $actividadId,
+        $respuestas
+    );
+
+    // Actualiza las insignias.
+    (new Progreso($this->db))->otorgarInsignia(
+        $usuarioId,
+        'primer-reto'
+    );
+
+    // Entrega 10 puntos si se alcanzó la calificación mínima.
+    $recompensa = [
+        'registrado' => false,
+    ];
+
+    if ($resultado['aprobado']) {
+        $token = new Token($this->db);
+
+        $recompensa = $token->ganarConResultado(
+            $usuarioId,
+            10,
+            'Recompensa por completar un reto',
+            'challenge_completed_' . $actividadId
+        );
+    }
+
+    // Guarda los datos para la pantalla de retroalimentación.
+    iniciarSesionSegura();
+
+    $_SESSION['ultimo_resultado'] = $resultado + [
+        'kind' => 'exercise',
+        'activity_id' => $actividadId,
+    ];
+
+    // Prepara la notificación.
+    if ($recompensa['registrado']) {
+        mensajeRecompensaFlash(
+            '¡Reto completado!',
+            10
+        );
+    }
+
+    redirigir(rutaPagina('retroalimentacion', [
+        'attempt' => $resultado['attempt_id']
+    ]));
+}
 
     public function guardar(): void
     {

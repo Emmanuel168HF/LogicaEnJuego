@@ -111,6 +111,32 @@ function obtenerMensajesFlash(): array
     return is_array($mensajes) ? $mensajes : [];
 }
 
+// Registra una notificación especial cuando el estudiante obtiene puntos.
+function mensajeRecompensaFlash(string $titulo, int $cantidad): void
+{
+    iniciarSesionSegura();
+
+    if ($cantidad <= 0) {
+        throw new InvalidArgumentException(
+            'La cantidad de puntos debe ser mayor que cero.'
+        );
+    }
+
+    $titulo = trim($titulo);
+
+    if ($titulo === '' || mb_strlen($titulo) > 100) {
+        throw new InvalidArgumentException(
+            'El título de la recompensa no es válido.'
+        );
+    }
+
+    $_SESSION['flash'][] = [
+        'tipo' => 'recompensa',
+        'titulo' => $titulo,
+        'cantidad' => $cantidad,
+    ];
+}
+
 // Envía una redirección posterior a una operación y finaliza la solicitud.
 function redirigir(string $destino): never
 {
@@ -161,12 +187,53 @@ function enteroOpcionalPost(string $campo): ?int
     return (int) $valor;
 }
 
-// Muestra los avisos temporales con texto escapado y estilos según su tipo.
+// Muestra los avisos temporales y las notificaciones de recompensas.
 function mostrarMensajesFlash(): void
 {
     foreach (obtenerMensajesFlash() as $mensaje) {
-        $clase = ($mensaje['tipo'] ?? '') === 'error' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-900';
-        echo '<div role="status" class="mx-auto my-4 max-w-4xl rounded-xl px-5 py-3 ' . $clase . '">' .
-            escapar($mensaje['mensaje'] ?? '') . '</div>';
+
+        // Notificación especial de puntos obtenidos.
+        if (($mensaje['tipo'] ?? '') === 'recompensa') {
+
+            $titulo = escapar($mensaje['titulo'] ?? '');
+            $cantidad = (int) ($mensaje['cantidad'] ?? 0);
+
+            if ($cantidad <= 0) {
+                continue;
+            }
+
+            echo '
+                <div
+                    class="notificacion-recompensa"
+                    role="status"
+                    aria-live="polite"
+                    data-notificacion-recompensa
+                >
+                    <div class="notificacion-recompensa__contenido">
+
+                        <p class="notificacion-recompensa__titulo">
+                            ' . $titulo . '
+                        </p>
+
+                        <p class="notificacion-recompensa__cantidad">
+                            Obtuviste +' . $cantidad . ' puntos
+                        </p>
+
+                    </div>
+                </div>
+            ';
+
+            continue;
+        }
+
+        // Conserva el diseño de los mensajes normales.
+        $clase = ($mensaje['tipo'] ?? '') === 'error'
+            ? 'bg-red-100 text-red-800'
+            : 'bg-blue-100 text-blue-900';
+
+        echo '<div role="status" class="mx-auto my-4 max-w-4xl rounded-xl px-5 py-3 ' .
+            $clase . '">' .
+            escapar($mensaje['mensaje'] ?? '') .
+            '</div>';
     }
 }

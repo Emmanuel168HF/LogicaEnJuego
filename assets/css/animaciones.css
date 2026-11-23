@@ -12,3 +12,36 @@
         transform: translateY(-1px);
     }
 }
+/* Animación de entrada de la recompensa. */
+@keyframes recompensaEntrada {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 55px) scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+/* Animación de salida de la recompensa. */
+@keyframes recompensaSalida {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(-50%, 45px) scale(0.96);
+    }
+}
+
+/* Respeta las preferencias de accesibilidad. */
+@media (prefers-reduced-motion: reduce) {
+    .notificacion-recompensa,
+    .notificacion-recompensa.is-hiding {
+        animation: none;
+    }
+}
